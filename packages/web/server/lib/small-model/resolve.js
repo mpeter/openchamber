@@ -6,9 +6,10 @@ import { getCatalogProvider } from './catalog.js';
 // 3. Family-priority scan of the authenticated providers' catalog models.
 const FAMILY_PRIORITY = ['gemini-flash', 'gpt-nano', 'claude-haiku'];
 const COPILOT_UTILITY_MODELS = ['gpt-5.4-nano', 'gpt-4.1', 'gpt-4o', 'gpt-4o-mini'];
-// The ChatGPT-plan codex backend only accepts a small allowlist of models
-// (nano/API-key models are rejected with 400) — this is its cheapest one.
-const OPENAI_OAUTH_SMALL_MODEL = 'gpt-5.4-mini';
+// The ChatGPT-plan Codex backend rejects gpt-5.4-mini. Keep its fallback in
+// the configured OpenAI family rather than selecting a model unavailable to
+// account-backed sessions.
+const OPENAI_OAUTH_SMALL_MODEL = 'gpt-5.6-luna';
 
 const AUTH_PROVIDER_ALIASES = {
   'github-copilot': ['github-copilot', 'copilot'],

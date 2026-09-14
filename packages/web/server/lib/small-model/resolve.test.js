@@ -149,7 +149,7 @@ describe('resolveSmallModel', () => {
       preferredProviderID: 'opencode',
       preferredModelID: 'big-pickle',
     });
-    expect(result).toEqual({ providerID: 'openai', modelID: 'gpt-5.4-mini', source: 'codex-small' });
+    expect(result).toEqual({ providerID: 'openai', modelID: 'gpt-5.6-luna', source: 'codex-small' });
   });
 
   it('resolves nothing on a vanilla setup with no logins at all', () => {
