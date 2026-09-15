@@ -19,6 +19,7 @@ import { cn, formatDirectoryName } from '@/lib/utils';
 import { useI18n } from '@/lib/i18n';
 import type { ProjectEntry } from '@/lib/api/types';
 import {
+  ScheduledTaskRunError,
   deleteScheduledTask,
   deleteScheduledTaskLoopFile,
   fetchScheduledTasks,
@@ -378,6 +379,16 @@ export function ScheduledTasksDialog() {
         useSessionUIStore.getState().setCurrentSession(sessionId, project?.path ?? null);
         }
     } catch (error) {
+      if (error instanceof ScheduledTaskRunError && error.persistError) {
+        const deniedTask = error.task;
+        if (deniedTask) {
+          setTasks((previous) => previous.map((item) => (
+            item.id === deniedTask.id ? { ...item, state: deniedTask.state } : item
+          )));
+        }
+        await reloadTasks(selectedProjectID, { silent: true });
+        toast.warning(error.persistError);
+      }
       toast.error(error instanceof Error ? error.message : t('sessions.scheduledTasks.dialog.toast.runFailed'));
     } finally {
       setMutatingTaskID(null);
