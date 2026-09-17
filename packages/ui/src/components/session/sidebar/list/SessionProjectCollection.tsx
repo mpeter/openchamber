@@ -253,12 +253,9 @@ const VisibleSessionProjects: React.FC<SessionProjectCollectionProps> = ({ topol
   // showing the last count it was told about.
   React.useEffect(() => () => onSearchMatchCountChange(0), [onSearchMatchCountChange]);
 
-  // Second bootstrap-demand owner: the layout-level useSessionListSync keeps
-  // every known directory alive at background priority even when the sidebar
-  // is hidden, but only the visible collection knows which projects and
-  // groups are EXPANDED. Without this owner, expanded projects bootstrapped
-  // serialized at background priority (one directory at a time) instead of
-  // concurrently at expanded priority.
+  // The layout only owns the active/current/selected directories. This visible
+  // collection owns expanded projects and visible worktrees, so unopened
+  // topology cannot start background initialization at app mount.
   const childStores = useChildStoreManager();
   const expansionDemandOwner = `session-collection-expansion:${React.useId()}`;
   React.useEffect(() => {

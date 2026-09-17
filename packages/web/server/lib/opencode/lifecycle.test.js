@@ -22,6 +22,7 @@ const { createOpenCodeLifecycleRuntime } = await import('./lifecycle.js');
 
 const originalOpencodeBinary = process.env.OPENCODE_BINARY;
 const originalPath = process.env.PATH;
+const originalWarmupDirectoryLimit = process.env.OPENCHAMBER_OPENCODE_WARMUP_DIRECTORY_LIMIT;
 const originalFetch = globalThis.fetch;
 
 afterEach(() => {
@@ -39,6 +40,12 @@ afterEach(() => {
     process.env.PATH = originalPath;
   } else {
     delete process.env.PATH;
+  }
+
+  if (typeof originalWarmupDirectoryLimit === 'string') {
+    process.env.OPENCHAMBER_OPENCODE_WARMUP_DIRECTORY_LIMIT = originalWarmupDirectoryLimit;
+  } else {
+    delete process.env.OPENCHAMBER_OPENCODE_WARMUP_DIRECTORY_LIMIT;
   }
 });
 
@@ -265,6 +272,33 @@ describe('OpenCode lifecycle', () => {
       'http://127.0.0.1:45678/session/status?directory=%2Ftmp%2Fworktree-a',
       'http://127.0.0.1:45678/session/status?directory=%2Ftmp%2Fproject-b',
     ]);
+  });
+
+  it('skips automatic directory warmup when its limit is zero', async () => {
+    process.env.OPENCHAMBER_OPENCODE_WARMUP_DIRECTORY_LIMIT = '0';
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ healthy: true }),
+    }));
+    globalThis.fetch = fetchMock;
+    const runtime = createRuntime({
+      env: {
+        ENV_CONFIGURED_OPENCODE_PORT: 45678,
+        ENV_CONFIGURED_OPENCODE_HOST: null,
+        ENV_EFFECTIVE_PORT: 45678,
+        ENV_CONFIGURED_OPENCODE_HOSTNAME: '127.0.0.1',
+        ENV_SKIP_OPENCODE_START: true,
+      },
+      reapManagedOrphanedProcesses: vi.fn(async () => ({ reaped: 0 })),
+      getWarmupDirectories: vi.fn(async () => ['/tmp/worktree-a']),
+    });
+
+    await runtime.bootstrapOpenCodeAtStartup();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(fetchMock.mock.calls.map(([url]) => String(url))).not.toContain(
+      'http://127.0.0.1:45678/session/status?directory=%2Ftmp%2Fworktree-a',
+    );
   });
 
   it('records an authoritative error terminal event when bootstrap fails', async () => {

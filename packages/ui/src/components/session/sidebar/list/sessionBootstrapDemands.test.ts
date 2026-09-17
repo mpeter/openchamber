@@ -11,7 +11,7 @@ const sections = [{
 }]
 
 describe("buildSessionBootstrapDemands", () => {
-  test("keeps collapsed worktrees eligible at background priority", () => {
+  test("does not initialize collapsed projects until they become relevant", () => {
     const demands = buildSessionBootstrapDemands({
       projectSections: sections,
       activeProjectId: null,
@@ -21,11 +21,7 @@ describe("buildSessionBootstrapDemands", () => {
       currentSessionDirectory: null,
     })
 
-    expect(demands.map(({ directory, priority }) => [directory, priority])).toEqual([
-      ["/repo", "background"],
-      ["/repo/wt-a", "background"],
-      ["/repo/wt-b", "background"],
-    ])
+    expect(demands).toEqual([])
   })
 
   test("promotes expansion and selected session without duplicate directories", () => {
@@ -45,9 +41,8 @@ describe("buildSessionBootstrapDemands", () => {
     expect(byDirectory.get("/repo/wt-b")?.priority).toBe("selected")
   })
 
-  test("keeps the complete known topology demanded without a visible section projection", () => {
+  test("demands only the active project without a visible section projection", () => {
     const demands = buildSessionBootstrapDemands({
-      knownDirectories: ["/repo", "/repo/wt-a", "/repo/wt-b"],
       activeProjectDirectory: "/repo",
       activeProjectId: "project-a",
       collapsedProjects: new Set(),
@@ -58,8 +53,6 @@ describe("buildSessionBootstrapDemands", () => {
 
     expect(demands.map(({ directory, priority }) => [directory, priority])).toEqual([
       ["/repo", "active-project"],
-      ["/repo/wt-a", "background"],
-      ["/repo/wt-b", "background"],
     ])
   })
 })

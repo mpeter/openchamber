@@ -37,8 +37,8 @@ kept at this root in `types.ts` and `utils.tsx`.
   Existing destinations are never removed; they get the same guidance.
 
 `MainLayout` and `VSCodeLayout` call `useSessionListSync({ isVSCode })`
-unconditionally. The hook publishes complete directory bootstrap demand,
-refreshes newly added topology, coalesces control events, and performs
+unconditionally. The hook publishes active-project, current-directory, and
+selected-session bootstrap demand, refreshes newly added topology, coalesces control events, and performs
 authoritative cleanup. Root-level `useGlobalSessionsPolling` remains the only
 initial and 45-second global poller. `useSessionListSync` must not create a
 second global polling lifecycle.
@@ -76,10 +76,12 @@ that include virtual positioning but exclude sortable transforms, so settling
 animations cannot leave stale header positions. The sidebar has no separate
 desktop-only top gradient or identity overlay.
 
-Directory demand always includes known project roots and worktrees. Visibility
-only changes priority. Row mounts must not start bootstrap work. Selection and
-activity subscriptions stay session-scoped so a structural list update does not
-make every row observe unrelated streaming updates.
+Layout-owned directory demand covers the active project, current directory, and
+selected session. The sidebar collection owns expanded and visible project or
+worktree demand; unopened topology remains covered by the global sessions cache
+until the user selects or expands it. Row mounts must not start bootstrap work.
+Selection and activity subscriptions stay session-scoped so a structural list
+update does not make every row observe unrelated streaming updates.
 
 Session menus share `SessionAiRenameMenuItem` with header tabs and the
 single-session header. AI renaming uses the same leading spinner as a worktree
@@ -120,7 +122,7 @@ matching and ordering. Search does not fetch sessions or broaden list membership
 
 ## Loading rules
 
-- Always publish every known project root and worktree directory. Collapse/visibility changes priority only; they do not opt a directory out of authoritative refresh.
+- Layout demand publishes the active project, current directory, and selected session. The sidebar collection adds only expanded and visible project or worktree directories. Collapse and off-screen state therefore opt unopened directories out of bootstrap without sacrificing complete global session coverage.
 - Directory demand and refresh requests preserve path case after separator and drive-letter normalization. Layout and expanded-section demand use the same identities. Case-insensitive sidebar membership keys stay inside the collection projection; sending those keys as paths creates duplicate directory stores and can address a different directory on case-sensitive filesystems.
 - Current directory and selected-session directory are `selected` demand and therefore run first.
 - Expanded projects/worktrees outrank merely visible and background groups.
