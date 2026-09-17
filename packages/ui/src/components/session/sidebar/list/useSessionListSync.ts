@@ -37,7 +37,6 @@ export const useSessionListSync = ({
 
   React.useEffect(() => {
     childStores.setBootstrapDemand(bootstrapDemandOwner, buildSessionBootstrapDemands({
-      knownDirectories,
       activeProjectDirectory: normalizePath(projects.find((project) => project.id === activeProjectId)?.path ?? null),
       activeProjectId,
       collapsedProjects: new Set(),
@@ -46,7 +45,7 @@ export const useSessionListSync = ({
       currentSessionDirectory,
     }));
     return () => childStores.clearBootstrapDemand(bootstrapDemandOwner);
-  }, [activeProjectId, bootstrapDemandOwner, childStores, currentDirectory, currentSessionDirectory, knownDirectories, projects]);
+  }, [activeProjectId, bootstrapDemandOwner, childStores, currentDirectory, currentSessionDirectory, projects]);
 
   const knownProjectSessionDirectoriesRef = React.useRef<Set<string> | null>(null);
   React.useEffect(() => {

@@ -21,7 +21,6 @@ const PRIORITY_RANK = {
 
 export function buildSessionBootstrapDemands(input: {
   projectSections?: BootstrapProjectSection[]
-  knownDirectories?: Iterable<string>
   activeProjectDirectory?: string | null
   activeProjectId: string | null
   collapsedProjects: ReadonlySet<string>
@@ -42,34 +41,24 @@ export function buildSessionBootstrapDemands(input: {
     byDirectory.set(normalizedDirectory, { directory: normalizedDirectory, priority, reason })
   }
 
-  for (const directory of input.knownDirectories ?? []) {
-    add(directory, "background", "known-project")
-  }
   add(input.activeProjectDirectory, "active-project", "project-expanded")
 
   for (const section of input.projectSections ?? []) {
     const projectExpanded = !input.collapsedProjects.has(section.project.id)
-    let projectPriority: DirectoryBootstrapPriority = "background"
-    if (section.project.id === input.activeProjectId) {
-      projectPriority = "active-project"
-    } else if (projectExpanded) {
-      projectPriority = "expanded"
-    }
+    const projectPriority = section.project.id === input.activeProjectId
+      ? "active-project"
+      : "expanded"
+    if (!projectExpanded && section.project.id !== input.activeProjectId) continue
     add(
       section.project.normalizedPath,
       projectPriority,
-      projectExpanded ? "project-expanded" : "known-project",
+      "project-expanded",
     )
 
     for (const group of section.groups) {
       if (!group.directory || group.isArchivedBucket || group.isMain) continue
       const groupExpanded = projectExpanded && !input.collapsedGroups.has(`${section.project.id}:${group.id}`)
-      let groupPriority: DirectoryBootstrapPriority = "background"
-      if (groupExpanded) {
-        groupPriority = "expanded"
-      } else if (projectExpanded) {
-        groupPriority = "visible"
-      }
+      const groupPriority: DirectoryBootstrapPriority = groupExpanded ? "expanded" : "visible"
       add(
         group.directory,
         groupPriority,

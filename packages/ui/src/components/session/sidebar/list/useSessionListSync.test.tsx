@@ -111,13 +111,13 @@ describe('useSessionListSync', () => {
     dom.restore();
   });
 
-  test('leaves initial global refresh to the root poller while publishing complete demand', () => {
+  test('leaves unopened worktrees to the sidebar demand owner', () => {
     act(() => useSessionUIStore.setState({ availableWorktreesByProject: new Map([['/project', [worktree]]]) }));
     act(() => root.render(<LifecycleProbe isVSCode={false} />));
 
     expect(state.globalRefreshes).toBe(0);
     expect(state.demands).toHaveLength(1);
-    expect(state.demands[0]?.directories).toEqual(['/project', '/worktree']);
+    expect(state.demands[0]?.directories).toEqual(['/project']);
     expect(state.directoryRefreshes).toEqual([]);
     expect(state.subscriptions).toBe(1);
     expect(state.cleanupInputs.at(-1)).toEqual({ enabled: true, hasAuthoritativeGlobalSessions: true, sessionCount: 0, sessions: [] });

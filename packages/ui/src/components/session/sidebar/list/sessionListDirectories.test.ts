@@ -17,7 +17,7 @@ describe('buildKnownSessionDirectories', () => {
     ]);
   });
 
-  test('layout and expanded sidebar demand share one directory identity at startup', () => {
+  test('layout demand excludes unopened topology while the expanded sidebar owns visible directories', () => {
     const projects = Array.from({ length: 4 }, (_, index) => ({
       id: `project-${index}`,
       path: `/Users/Developer/Project-${index}`,
@@ -39,7 +39,7 @@ describe('buildKnownSessionDirectories', () => {
     };
     const layout = buildSessionBootstrapDemands({
       ...common,
-      knownDirectories: buildKnownSessionDirectories(projects, worktrees),
+      activeProjectDirectory: projects[0].path,
     });
     const sidebar = buildSessionBootstrapDemands({
       ...common,
@@ -50,7 +50,7 @@ describe('buildKnownSessionDirectories', () => {
         })),
       })),
     });
-    expect(layout).toHaveLength(24);
+    expect(layout.map((demand) => demand.directory)).toEqual([projects[0].path]);
     expect(new Set([...layout, ...sidebar].map((demand) => demand.directory)).size).toBe(24);
   });
 
