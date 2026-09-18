@@ -11,7 +11,6 @@ import { useArchivedAutoFolders } from '../folders/useArchivedAutoFolders';
 import { ProjectSessionSelectionEffect } from '../projects/useProjectSessionSelection';
 import type { WorktreeMetadata } from '@/types/worktree';
 import { buildActiveSessionNode, useRecentSessionCollection, useSessionProjectCollection } from './sessionCollection';
-import { buildSessionBootstrapDemands } from './sessionBootstrapDemands';
 import { useChildStoreManager } from '@/sync/sync-context';
 import { createSessionOwnershipIndex } from '../sessions/sessionOwnership';
 import { useProjectSessionLists } from '../projects/useProjectSessionLists';
@@ -253,22 +252,7 @@ const VisibleSessionProjects: React.FC<SessionProjectCollectionProps> = ({ topol
   // showing the last count it was told about.
   React.useEffect(() => () => onSearchMatchCountChange(0), [onSearchMatchCountChange]);
 
-  // The layout only owns the active/current/selected directories. This visible
-  // collection owns expanded projects and visible worktrees, so unopened
-  // topology cannot start background initialization at app mount.
   const childStores = useChildStoreManager();
-  const expansionDemandOwner = `session-collection-expansion:${React.useId()}`;
-  React.useEffect(() => {
-    childStores.setBootstrapDemand(expansionDemandOwner, buildSessionBootstrapDemands({
-      projectSections,
-      activeProjectId: view.activeProjectId,
-      collapsedProjects: projectView.collapsedProjects,
-      collapsedGroups: projectView.collapsedGroups,
-      currentDirectory: null,
-      currentSessionDirectory: null,
-    }));
-    return () => childStores.clearBootstrapDemand(expansionDemandOwner);
-  }, [childStores, expansionDemandOwner, projectSections, projectView.collapsedProjects, projectView.collapsedGroups, view.activeProjectId]);
   const source = view.useGroupedSections ? sectionsForRender : flatSectionsForRender;
   const sectionsForSidebarRender = React.useMemo(() => view.showInlineArchived ? source : source.map((section) => (
     section.groups.some((group) => group.isArchivedBucket)
