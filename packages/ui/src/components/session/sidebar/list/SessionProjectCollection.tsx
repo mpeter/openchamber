@@ -253,9 +253,9 @@ const VisibleSessionProjects: React.FC<SessionProjectCollectionProps> = ({ topol
   // showing the last count it was told about.
   React.useEffect(() => () => onSearchMatchCountChange(0), [onSearchMatchCountChange]);
 
-  // The layout only owns the active/current/selected directories. This visible
-  // collection owns expanded projects and visible worktrees, so unopened
-  // topology cannot start background initialization at app mount.
+  // The layout owns active/current/selected directories. The collection adds
+  // only its active project root: displaying historical worktrees must not
+  // initialize their directory runtimes.
   const childStores = useChildStoreManager();
   const expansionDemandOwner = `session-collection-expansion:${React.useId()}`;
   React.useEffect(() => {

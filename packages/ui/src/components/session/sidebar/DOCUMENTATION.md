@@ -77,9 +77,9 @@ animations cannot leave stale header positions. The sidebar has no separate
 desktop-only top gradient or identity overlay.
 
 Layout-owned directory demand covers the active project, current directory, and
-selected session. The sidebar collection owns expanded and visible project or
-worktree demand; unopened topology remains covered by the global sessions cache
-until the user selects or expands it. Row mounts must not start bootstrap work.
+selected session. The sidebar collection adds only its active project root;
+historical worktrees remain covered by the global sessions cache until the user
+selects a session there. Row mounts must not start bootstrap work.
 Selection and activity subscriptions stay session-scoped so a structural list
 update does not make every row observe unrelated streaming updates.
 
@@ -122,7 +122,7 @@ matching and ordering. Search does not fetch sessions or broaden list membership
 
 ## Loading rules
 
-- Layout demand publishes the active project, current directory, and selected session. The sidebar collection adds only expanded and visible project or worktree directories. Collapse and off-screen state therefore opt unopened directories out of bootstrap without sacrificing complete global session coverage.
+- Layout demand publishes the active project, current directory, and selected session. The sidebar collection adds only its active project root. Historical worktrees stay represented by the global sessions cache and initialize only on explicit session selection.
 - Directory demand and refresh requests preserve path case after separator and drive-letter normalization. Layout and expanded-section demand use the same identities. Case-insensitive sidebar membership keys stay inside the collection projection; sending those keys as paths creates duplicate directory stores and can address a different directory on case-sensitive filesystems.
 - Current directory and selected-session directory are `selected` demand and therefore run first.
 - Expanded projects/worktrees outrank merely visible and background groups.

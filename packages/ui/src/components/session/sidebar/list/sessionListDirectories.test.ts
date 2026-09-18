@@ -17,7 +17,7 @@ describe('buildKnownSessionDirectories', () => {
     ]);
   });
 
-  test('layout demand excludes unopened topology while the expanded sidebar owns visible directories', () => {
+  test('layout and sidebar demand exclude unopened topology', () => {
     const projects = Array.from({ length: 4 }, (_, index) => ({
       id: `project-${index}`,
       path: `/Users/Developer/Project-${index}`,
@@ -51,7 +51,7 @@ describe('buildKnownSessionDirectories', () => {
       })),
     });
     expect(layout.map((demand) => demand.directory)).toEqual([projects[0].path]);
-    expect(new Set([...layout, ...sidebar].map((demand) => demand.directory)).size).toBe(24);
+    expect(new Set([...layout, ...sidebar].map((demand) => demand.directory)).size).toBe(1);
   });
 
   test('preserves case-sensitive directories and normalizes Windows separators without lowercasing names', () => {

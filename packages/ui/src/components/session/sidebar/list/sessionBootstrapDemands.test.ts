@@ -24,7 +24,7 @@ describe("buildSessionBootstrapDemands", () => {
     expect(demands).toEqual([])
   })
 
-  test("promotes expansion and selected session without duplicate directories", () => {
+  test("promotes selected session without initializing other visible worktrees", () => {
     const demands = buildSessionBootstrapDemands({
       projectSections: sections,
       activeProjectId: "project-a",
@@ -35,10 +35,25 @@ describe("buildSessionBootstrapDemands", () => {
     })
     const byDirectory = new Map(demands.map((demand) => [demand.directory, demand]))
 
-    expect(demands.length).toBe(3)
+    expect(demands.length).toBe(2)
     expect(byDirectory.get("/repo")?.priority).toBe("selected")
-    expect(byDirectory.get("/repo/wt-a")?.priority).toBe("expanded")
+    expect(byDirectory.has("/repo/wt-a")).toBe(false)
     expect(byDirectory.get("/repo/wt-b")?.priority).toBe("selected")
+  })
+
+  test("does not initialize visible worktrees until a user selects one", () => {
+    const demands = buildSessionBootstrapDemands({
+      projectSections: sections,
+      activeProjectId: "project-a",
+      collapsedProjects: new Set(),
+      collapsedGroups: new Set(),
+      currentDirectory: null,
+      currentSessionDirectory: null,
+    })
+
+    expect(demands.map(({ directory, priority }) => [directory, priority])).toEqual([
+      ["/repo", "active-project"],
+    ])
   })
 
   test("demands only the active project without a visible section projection", () => {

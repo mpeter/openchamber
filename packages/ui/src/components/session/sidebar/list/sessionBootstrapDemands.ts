@@ -44,27 +44,8 @@ export function buildSessionBootstrapDemands(input: {
   add(input.activeProjectDirectory, "active-project", "project-expanded")
 
   for (const section of input.projectSections ?? []) {
-    const projectExpanded = !input.collapsedProjects.has(section.project.id)
-    const projectPriority = section.project.id === input.activeProjectId
-      ? "active-project"
-      : "expanded"
-    if (!projectExpanded && section.project.id !== input.activeProjectId) continue
-    add(
-      section.project.normalizedPath,
-      projectPriority,
-      "project-expanded",
-    )
-
-    for (const group of section.groups) {
-      if (!group.directory || group.isArchivedBucket || group.isMain) continue
-      const groupExpanded = projectExpanded && !input.collapsedGroups.has(`${section.project.id}:${group.id}`)
-      const groupPriority: DirectoryBootstrapPriority = groupExpanded ? "expanded" : "visible"
-      add(
-        group.directory,
-        groupPriority,
-        groupExpanded ? "worktree-expanded" : "known-worktree",
-      )
-    }
+    if (section.project.id !== input.activeProjectId) continue
+    add(section.project.normalizedPath, "active-project", "project-expanded")
   }
 
   add(input.currentDirectory, "selected", "current-directory")
